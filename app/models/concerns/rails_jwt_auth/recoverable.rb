@@ -1,5 +1,7 @@
 module RailsJwtAuth
   module Recoverable
+    TOKEN_LENGTH = 6
+
     def self.included(base)
       base.class_eval do
         if defined?(Mongoid) && base.ancestors.include?(Mongoid::Document)
@@ -27,7 +29,7 @@ module RailsJwtAuth
         return false
       end
 
-      self.reset_password_token = SecureRandom.base58(24)
+      self.reset_password_token = generate_reset_password_token
       self.reset_password_sent_at = Time.current
       return false unless save
 
@@ -43,7 +45,7 @@ module RailsJwtAuth
       self.password_confirmation = self.password
       self.skip_confirmation! if self.class.ancestors.include?(RailsJwtAuth::Confirmable)
 
-      self.reset_password_token = SecureRandom.base58(24)
+      self.reset_password_token = generate_reset_password_token
       self.reset_password_sent_at = Time.current
       return false unless save
 
@@ -53,6 +55,13 @@ module RailsJwtAuth
     end
 
     protected
+
+    def generate_reset_password_token
+      loop do
+        token = format "%0#{TOKEN_LENGTH}d", rand(('9' * TOKEN_LENGTH).to_i)
+        return token unless self.class.where(reset_password_token: token).exists?
+      end
+    end
 
     def validate_reset_password_token
       if reset_password_sent_at &&
