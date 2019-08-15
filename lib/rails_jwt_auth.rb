@@ -11,6 +11,9 @@ module RailsJwtAuth
   NotResetPasswordsUrl = Class.new(StandardError)
   NotSetPasswordsUrl = Class.new(StandardError)
 
+  mattr_accessor :base_controller_name
+  self.base_controller_name = 'ApplicationController'
+
   mattr_accessor :model_name
   self.model_name = 'User'
 
@@ -58,6 +61,10 @@ module RailsJwtAuth
 
   mattr_accessor :deliver_later
   self.deliver_later = false
+
+  def self.base_controller
+    base_controller_name.constantize
+  end
 
   def self.model
     model_name.constantize

@@ -1,5 +1,5 @@
 module RailsJwtAuth
-  class PasswordsController < ApplicationController
+  class PasswordsController < RailsJwtAuth.base_controller
     include ParamsHelper
     include RenderHelper
 
